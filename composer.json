@@ -1,0 +1,39 @@
+{
+    "name": "simbiat/db-binder",
+    "type": "library",
+    "keywords": [
+        "database",
+        "php",
+        "pdo",
+        "bind"
+    ],
+    "description": "Set of classes for database pool and helper.",
+    "homepage": "https://github.com/Simbiat/db-binder",
+    "license": "AGPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Dmitrii Kustov",
+            "email": "support@simbiat.dev",
+            "homepage": "https://www.simbiat.dev",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.4",
+        "ext-pdo": "*",
+        "ext-mbstring": "*"
+    },
+    "suggest": {
+        "simbiat/cute-bytes": "Allows to present bytes in human-readable format",
+        "simbiat/sand-clock": "Allows better handling of date and time formats"
+    },
+    "autoload": {
+        "psr-4": {
+            "Simbiat\\Database\\": "src/"
+        }
+    },
+    "support": {
+        "issues": "https://github.com/Simbiat/db-binder/issues",
+        "source": "https://github.com/Simbiat/db-binder"
+    }
+}
