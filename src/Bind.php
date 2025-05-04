@@ -60,7 +60,7 @@ final class Bind
         try {
             foreach ($bindings as $binding => $value) {
                 #Skip the binding if it's not present in the query.
-                if (!str_contains($sql->queryString, $binding)) {
+                if (is_string($binding) && !str_contains($sql->queryString, $binding)) {
                     continue;
                 }
                 if (!is_array($value)) {
@@ -391,6 +391,6 @@ final class Bind
                 $sql = str_replace($binding, implode(', ', array_keys($inBindings)), $sql);
             }
         }
-        $bindings = array_merge($bindings, $allInBindings);
+        $bindings += $allInBindings;
     }
 }

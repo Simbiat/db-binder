@@ -39,7 +39,7 @@ Quite often you do not have just one value to bind. For these cases you can use 
 \Simbiat\Database\Bind::bindMultiple(\PDOStatement $sql, array $bindings = []);
 ```
 
-This will go through the array of bindings (format explained below), skip those bindings that are not present in the prepared query and then bind the values using the methods described earlier. Strings will be run through `mb_scrub` before binding.
+This will go through the array of bindings (format explained below), skip those bindings that are not present in the prepared query (works only for named identifiers) and then bind the values using the methods described earlier. Strings will be run through `mb_scrub` before binding.
 
 ### Array format
 
@@ -109,7 +109,7 @@ If a value is not found in the mappings and is an integer, it will be considered
 
 Can be used to "unpack" a `$bindings` array and prepare each value for future binding by "cloning" the original parameter identifier. Since this requires **changing** of the original SQL, function **requires** passing it a string (by reference), and thus **before** you have prepared it using `prepare()`. It also currently requires the list of **all** bindings to be passed (by reference) because they also need to be modified and because I simply do not see a good way of not doing that.
 
-The query is expected to have the `IN` clause in it, and `$bindings` is expected to have a format same as for `bindMultiple()`. Here's a practical example:
+The query is expected to have the `IN` clause in it, and `$bindings` is expected to have a format same as for `bindMultiple()`. Only named identifiers are supported because otherwise the function can break the order, especially since `+` operator is used instead of `array_merge`. Here's a practical example:
 ```php
 $query = 'SELECT COUNT(*) as `count` FROM `information_schema`.`TABLES` WHERE `TABLE_NAME` IN(:table) AND `TABLE_SCHEMA` IN(:schema);';
 $table = ['table', 'table2'];
