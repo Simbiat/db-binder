@@ -290,8 +290,8 @@ final class Bind
             '/^[\p{Z}\h\v\r\n]+|[\p{Z}\h\v\r\n]+$/u',
             #Remove all symbols except allowed operators and space. @distance is not included, since it's unlikely a human will be using it through a UI form
             '/[^\p{L}\p{N}_+\-<>~()"* ]/u',
-            #Remove all operators that can only precede a text and that are not preceded by either beginning of string or space
-            '/(?<!^| )[+\-<>~]/u',
+            #Remove all operators that can only precede a text and that are not preceded by either beginning of string or space, and if they are not followed by a string
+            '/(?<!^| )[-+<>~](?!\S)|(?<!\S)[-+<>~](?!\S)/u',
             #Remove all double quotes and asterisks that are not preceded by either beginning of string, letter, number or space
             '/(?<![\p{L}\p{N}_ ]|^)[*"]/u',
             #Remove all double quotes and asterisks that are inside a text
