@@ -291,7 +291,7 @@ final class Bind
             #Remove all symbols except allowed operators and space. @distance is not included, since it's unlikely a human will be using it through a UI form
             '/[^\p{L}\p{N}_+\-<>~()"* ]/u',
             #Remove all operators that can only precede a text and that are not preceded by either beginning of string or space, and if they are not followed by a string
-            '/(?<!^| )[-+<>~](?!\S)|(?<!\S)[-+<>~](?!\S)/u',
+            '/(?<!^| )[-+<>~]+(?!\S)|(?<!\S)[-+<>~]+(?!\S)/u',
             #Remove all double quotes and asterisks that are not preceded by either beginning of string, letter, number or space
             '/(?<![\p{L}\p{N}_ ]|^)[*"]/u',
             #Remove all double quotes and asterisks that are inside a text
@@ -310,11 +310,13 @@ final class Bind
             $newValue = preg_replace('/[()]/u', '', $newValue);
         }
         $newValue = preg_replace([
-            #Remove all operators that can only precede a text and that do not have a text after them (at the end of a string). Do this for any possible combinations
-            '/[+\-<>~]+$/u',
+            #Collapse all consecutive operators
+            '/([-+<>~])([-+<>~]+)/u',
+            #Remove all operators that can only precede a text and that are not preceded by either beginning of string or space, and if they are not followed by a string. Under certain conditions we may need to do this the 2nd time.
+            '/(?<!^| )[-+<>~]+(?!\S)|(?<!\S)[-+<>~]+(?!\S)/u',
             #Remove the asterisk operator at the beginning of a string
             '/^\*/u'
-        ], '', $newValue);
+        ], ['$1', '', ''], $newValue);
         #Check if the new value is just the set of operators and if it is - set the value to an empty string
         if (preg_match('/^[+\-<>~()"*]+$/u', $newValue)) {
             $newValue = '';
