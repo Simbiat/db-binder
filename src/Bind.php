@@ -17,7 +17,7 @@ final class Bind
      * Array to link various data types to their respective binding handlers. Key represents a data type, value is the handler function name.
      * @var array|string[]
      */
-    private static array $bindingHandlers = [
+    public const array BINDING_HANDLERS = [
         'year' => 'bindYear',
         'date' => 'bindDate',
         'time' => 'bindTime',
@@ -79,23 +79,27 @@ final class Bind
                     $value[1] = '';
                 }
                 $type = mb_strtolower($value[1], 'UTF-8');
-                $handler = self::$bindingHandlers[$type] ?? null;
+                if (is_string($type)) {
+                    $handler = self::BINDING_HANDLERS[$type] ?? null;
+                } else {
+                    $handler = null;
+                }
                 if ($handler && method_exists(self::class, $handler)) {
                     self::$handler($sql, $binding, $value[0]);
-                } elseif (\is_int($value[1])) {
+                } elseif (is_int($value[1])) {
                     $sql->bindValue($binding, $value[0], $value[1]);
                 } else {
                     $sql->bindValue($binding, (string)$value[0]);
                 }
             }
         } catch (\Throwable $exception) {
-            $errMessage = 'Failed to bind variable `'.$binding.'`';
+            $err_message = 'Failed to bind variable `'.$binding.'`';
             if (is_array($value)) {
-                $errMessage .= ' of type `'.$value[1].'` with value `'.$value[0].'`';
+                $err_message .= ' of type `'.$value[1].'` with value `'.$value[0].'`';
             } else {
-                $errMessage .= ' with value `'.$value.'`';
+                $err_message .= ' with value `'.$value.'`';
             }
-            throw new \PDOException($errMessage, $exception->getCode(), $exception);
+            throw new \PDOException($err_message, $exception->getCode(), $exception);
         }
     }
     
@@ -285,7 +289,7 @@ final class Bind
     public static function bindMatch(\PDOStatement $sql, string $binding, mixed $value): void
     {
         #Same as string, but for MATCH operator, when your string can have special characters, that will break the query
-        $newValue = preg_replace([
+        $new_value = preg_replace([
             #Trim first
             '/^[\p{Z}\h\v\r\n]+|[\p{Z}\h\v\r\n]+$/u',
             #Remove all symbols except allowed operators and space. @distance is not included, since it's unlikely a human will be using it through a UI form
@@ -302,26 +306,26 @@ final class Bind
             '/(?<![\p{L}\p{N}_])\)|\)(?! |$)/u'
         ], '', (string)$value);
         #Remove all double quotes if the count is not even
-        if (mb_substr_count($newValue, '"', 'UTF-8') % 2 !== 0) {
-            $newValue = preg_replace('/"/u', '', $newValue);
+        if (mb_substr_count($new_value, '"', 'UTF-8') % 2 !== 0) {
+            $new_value = preg_replace('/"/u', '', $new_value);
         }
         #Remove all parentheses if the count of closing does not match the count of opening ones
-        if (mb_substr_count($newValue, '(', 'UTF-8') !== mb_substr_count($newValue, ')', 'UTF-8')) {
-            $newValue = preg_replace('/[()]/u', '', $newValue);
+        if (mb_substr_count($new_value, '(', 'UTF-8') !== mb_substr_count($new_value, ')', 'UTF-8')) {
+            $new_value = preg_replace('/[()]/u', '', $new_value);
         }
-        $newValue = preg_replace([
+        $new_value = preg_replace([
             #Collapse all consecutive operators
             '/([-+<>~])([-+<>~]+)/u',
             #Remove all operators that can only precede a text and that are not preceded by either beginning of string or space, and if they are not followed by a string. Under certain conditions we may need to do this the 2nd time.
             '/(?<!^| )[-+<>~]+(?!\S)|(?<!\S)[-+<>~]+(?!\S)/u',
             #Remove the asterisk operator at the beginning of a string
             '/^\*/u'
-        ], ['$1', '', ''], $newValue);
+        ], ['$1', '', ''], $new_value);
         #Check if the new value is just the set of operators and if it is - set the value to an empty string
-        if (preg_match('/^[+\-<>~()"*]+$/u', $newValue)) {
-            $newValue = '';
+        if (preg_match('/^[+\-<>~()"*]+$/u', $new_value)) {
+            $new_value = '';
         }
-        self::bindString($sql, $binding, $newValue);
+        self::bindString($sql, $binding, $new_value);
     }
     
     /**
@@ -354,7 +358,7 @@ final class Bind
     {
         #Suppress warning from custom inspection, since we are dealing with binary data here, so use of mb_strlen is not appropriate
         /** @noinspection NoMBMultibyteAlternative */
-        $sql->bindParam($binding, $value, \PDO::PARAM_LOB, \strlen($value));
+        $sql->bindParam($binding, $value, \PDO::PARAM_LOB, strlen($value));
     }
     
     /**
@@ -368,7 +372,7 @@ final class Bind
     public static function unpackIN(string &$sql, array &$bindings): void
     {
         #First unpack IN binding
-        $allInBindings = [];
+        $all_in_bindings = [];
         foreach ($bindings as $binding => $value) {
             if (is_array($value) && mb_strtolower($value[1], 'UTF-8') === 'in') {
                 if (!is_array($value[0])) {
@@ -382,17 +386,17 @@ final class Bind
                 if ($value[2] === 'in') {
                     throw new \UnexpectedValueException('Can\'t use `in` type when already using `in` binding');
                 }
-                $inBindings = [];
-                #Generate list of
-                foreach ($value[0] as $inCount => $inItem) {
-                    $inBindings[$binding.'_'.$inCount] = [$inItem, $value[2]];
-                    $allInBindings[$binding.'_'.$inCount] = [$inItem, $value[2]];
+                $in_bindings = [];
+                #Generate the list of items
+                foreach ($value[0] as $in_count => $in_item) {
+                    $in_bindings[$binding.'_'.$in_count] = [$in_item, $value[2]];
+                    $all_in_bindings[$binding.'_'.$in_count] = [$in_item, $value[2]];
                 }
                 unset($bindings[$binding]);
                 #Update the query
-                $sql = str_replace($binding, implode(', ', array_keys($inBindings)), $sql);
+                $sql = str_replace($binding, implode(', ', array_keys($in_bindings)), $sql);
             }
         }
-        $bindings += $allInBindings;
+        $bindings += $all_in_bindings;
     }
 }

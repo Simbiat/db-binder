@@ -68,7 +68,7 @@ $bindings = [
 The second element in the `$bindings` array expects certain values, which are used to map to respective functions as below:
 
 ```php
-private static array $bindingHandlers = [
+public const array BINDING_HANDLERS = [
     'year' => 'bindYear',
     'date' => 'bindDate',
     'time' => 'bindTime',
