@@ -115,7 +115,7 @@ final class Bind
      * */
     public static function bindYear(\PDOStatement $sql, string $binding, mixed $value): void
     {
-        if (method_exists(SandClock::class, 'format')) {
+        if (\method_exists(SandClock::class, 'format')) {
             self::bindString($sql, $binding, SandClock::format($value, 'Y'));
         } else {
             self::bindString($sql, $binding, (string)$value);
@@ -134,7 +134,7 @@ final class Bind
      * */
     public static function bindDate(\PDOStatement $sql, string $binding, mixed $value): void
     {
-        if (method_exists(SandClock::class, 'format')) {
+        if (\method_exists(SandClock::class, 'format')) {
             self::bindString($sql, $binding, SandClock::format($value, 'Y-m-d'));
         } else {
             self::bindString($sql, $binding, (string)$value);
@@ -153,7 +153,7 @@ final class Bind
      */
     public static function bindTime(\PDOStatement $sql, string $binding, mixed $value): void
     {
-        if (method_exists(SandClock::class, 'format')) {
+        if (\method_exists(SandClock::class, 'format')) {
             self::bindString($sql, $binding, SandClock::format($value, 'H:i:s.u'));
         } else {
             self::bindString($sql, $binding, (string)$value);
@@ -172,7 +172,7 @@ final class Bind
      */
     public static function bindDateTime(\PDOStatement $sql, string $binding, mixed $value): void
     {
-        if (method_exists(SandClock::class, 'format')) {
+        if (\method_exists(SandClock::class, 'format')) {
             self::bindString($sql, $binding, SandClock::format($value));
         } else {
             self::bindString($sql, $binding, (string)$value);
@@ -250,7 +250,7 @@ final class Bind
      */
     public static function bindBytes(\PDOStatement $sql, string $binding, mixed $value): void
     {
-        if (method_exists(CuteBytes::class, 'bytes')) {
+        if (\method_exists(CuteBytes::class, 'bytes')) {
             self::bindString($sql, $binding, CuteBytes::bytes((string)$value, 1024));
         } else {
             self::bindString($sql, $binding, (string)$value);
@@ -269,7 +269,7 @@ final class Bind
      */
     public static function bindBits(\PDOStatement $sql, string $binding, mixed $value): void
     {
-        if (method_exists(CuteBytes::class, 'bytes')) {
+        if (\method_exists(CuteBytes::class, 'bytes')) {
             self::bindString($sql, $binding, CuteBytes::bytes((string)$value, 1024, bits: true));
         } else {
             self::bindString($sql, $binding, (string)$value);
@@ -289,7 +289,7 @@ final class Bind
     public static function bindMatch(\PDOStatement $sql, string $binding, mixed $value): void
     {
         #Same as string, but for MATCH operator, when your string can have special characters, that will break the query
-        $new_value = preg_replace([
+        $new_value = \preg_replace([
             #Trim first
             '/^[\p{Z}\h\v\r\n]+|[\p{Z}\h\v\r\n]+$/u',
             #Remove all symbols except allowed operators and space. @distance is not included, since it's unlikely a human will be using it through a UI form
@@ -307,13 +307,13 @@ final class Bind
         ], '', (string)$value);
         #Remove all double quotes if the count is not even
         if (mb_substr_count($new_value, '"', 'UTF-8') % 2 !== 0) {
-            $new_value = preg_replace('/"/u', '', $new_value);
+            $new_value = \preg_replace('/"/u', '', $new_value);
         }
         #Remove all parentheses if the count of closing does not match the count of opening ones
         if (mb_substr_count($new_value, '(', 'UTF-8') !== mb_substr_count($new_value, ')', 'UTF-8')) {
-            $new_value = preg_replace('/[()]/u', '', $new_value);
+            $new_value = \preg_replace('/[()]/u', '', $new_value);
         }
-        $new_value = preg_replace([
+        $new_value = \preg_replace([
             #Collapse all consecutive operators
             '/([-+<>~])([-+<>~]+)/u',
             #Remove all operators that can only precede a text and that are not preceded by either beginning of string or space, and if they are not followed by a string. Under certain conditions we may need to do this the 2nd time.
@@ -322,7 +322,7 @@ final class Bind
             '/^\*/u'
         ], ['$1', '', ''], $new_value);
         #Check if the new value is just the set of operators and if it is - set the value to an empty string
-        if (preg_match('/^[+\-<>~()"*]+$/u', $new_value)) {
+        if (\preg_match('/^[+\-<>~()"*]+$/u', $new_value)) {
             $new_value = '';
         }
         self::bindString($sql, $binding, $new_value);
@@ -358,7 +358,7 @@ final class Bind
     {
         #Suppress warning from custom inspection, since we are dealing with binary data here, so use of mb_strlen is not appropriate
         /** @noinspection NoMBMultibyteAlternative */
-        $sql->bindParam($binding, $value, \PDO::PARAM_LOB, strlen($value));
+        $sql->bindParam($binding, $value, \PDO::PARAM_LOB, \strlen($value));
     }
     
     /**
@@ -394,7 +394,7 @@ final class Bind
                 }
                 unset($bindings[$binding]);
                 #Update the query
-                $sql = str_replace($binding, implode(', ', array_keys($in_bindings)), $sql);
+                $sql = \str_replace($binding, \implode(', ', \array_keys($in_bindings)), $sql);
             }
         }
         $bindings += $all_in_bindings;
