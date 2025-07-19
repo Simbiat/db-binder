@@ -84,9 +84,9 @@ final class Bind
                 } else {
                     $handler = null;
                 }
-                if ($handler && method_exists(self::class, $handler)) {
+                if ($handler && \method_exists(self::class, $handler)) {
                     self::$handler($sql, $binding, $value[0]);
-                } elseif (is_int($value[1])) {
+                } elseif (\is_int($value[1])) {
                     $sql->bindValue($binding, $value[0], $value[1]);
                 } else {
                     $sql->bindValue($binding, (string)$value[0]);
