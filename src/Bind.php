@@ -104,7 +104,7 @@ final class Bind
     }
     
     /**
-     * Bind value to parameter identifier in PDOStatement's query as year. If `\Simbiat\SandClock` is available will try to format as `Y`, otherwise expects a properly formatted string.
+     * Bind value to parameter identifier in PDOStatement's query as year. If `\Simbiat\SandClock` is available will try to format as `Y`, otherwise a properly formatted string is expected.
      *
      * @param \PDOStatement $sql     PDOStatement to use
      * @param string        $binding Identifier name
@@ -123,7 +123,7 @@ final class Bind
     }
     
     /**
-     * Bind value to parameter identifier in PDOStatement's query as date. If `\Simbiat\SandClock` is available will try to format as `Y-m-d`, otherwise expects a properly formatted string.
+     * Bind value to parameter identifier in PDOStatement's query as date. If `\Simbiat\SandClock` is available will try to format as `Y-m-d`, otherwise a properly formatted string is expected.
      *
      * @param \PDOStatement $sql     PDOStatement to use
      * @param string        $binding Identifier name
@@ -142,7 +142,7 @@ final class Bind
     }
     
     /**
-     * Bind value to parameter identifier in PDOStatement's query as time. If `\Simbiat\SandClock` is available will try to format as `H:i:s.u`, otherwise expects a properly formatted string.
+     * Bind value to parameter identifier in PDOStatement's query as time. If `\Simbiat\SandClock` is available will try to format as `H:i:s.u`, otherwise a properly formatted string is expected.
      *
      * @param \PDOStatement $sql     PDOStatement to use
      * @param string        $binding Identifier name
@@ -161,7 +161,7 @@ final class Bind
     }
     
     /**
-     * Bind value to parameter identifier in PDOStatement's query as datetime. If `\Simbiat\SandClock` is available will try to format as `Y-m-d H:i:s.u`, otherwise expects a properly formatted string.
+     * Bind value to parameter identifier in PDOStatement's query as datetime. If `\Simbiat\SandClock` is available will try to format as `Y-m-d H:i:s.u`, otherwise a properly formatted string is expected.
      *
      * @param \PDOStatement $sql     PDOStatement to use
      * @param string        $binding Identifier name
@@ -258,7 +258,7 @@ final class Bind
     }
     
     /**
-     * Bind value to parameter identifier in PDOStatement's query as bits value (string). If `\Simbiat\CuteBytes` is not available, the value will be bound as is.
+     * Bind value to parameter identifier in PDOStatement's query as bit value (string). If `\Simbiat\CuteBytes` is not available, the value will be bound as is.
      *
      * @param \PDOStatement $sql     PDOStatement to use
      * @param string        $binding Identifier name
@@ -294,7 +294,7 @@ final class Bind
             '/^[\p{Z}\h\v\r\n]+|[\p{Z}\h\v\r\n]+$/u',
             #Remove all symbols except allowed operators and space. @distance is not included, since it's unlikely a human will be using it through a UI form
             '/[^\p{L}\p{N}_+\-<>~()"* ]/u',
-            #Remove all operators that can only precede a text and that are not preceded by either beginning of string or space, and if they are not followed by a string
+            #Remove all operators that can only precede a text, and that are not preceded by either beginning of string or space, and if they are not followed by a string
             '/(?<!^| )[-+<>~]+(?!\S)|(?<!\S)[-+<>~]+(?!\S)/u',
             #Remove all double quotes and asterisks that are not preceded by either beginning of string, letter, number or space
             '/(?<![\p{L}\p{N}_ ]|^)[*"]/u',
@@ -316,7 +316,7 @@ final class Bind
         $new_value = \preg_replace([
             #Collapse all consecutive operators
             '/([-+<>~])([-+<>~]+)/u',
-            #Remove all operators that can only precede a text and that are not preceded by either beginning of string or space, and if they are not followed by a string. Under certain conditions we may need to do this the 2nd time.
+            #Remove all operators that can only precede a text, and that are not preceded by either beginning of string or space, and if they are not followed by a string. Under certain conditions we may need to do this the 2nd time.
             '/(?<!^| )[-+<>~]+(?!\S)|(?<!\S)[-+<>~]+(?!\S)/u',
             #Remove the asterisk operator at the beginning of a string
             '/^\*/u'
