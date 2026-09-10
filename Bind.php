@@ -46,7 +46,7 @@ final class Bind
         'object' => 'bindBinary',
         'blob' => 'bindBinary',
     ];
-    
+
     /**
      * Function to bind multiple values to a query.
      *
@@ -102,7 +102,7 @@ final class Bind
             throw new \PDOException($err_message, $exception->getCode(), $exception);
         }
     }
-    
+
     /**
      * Bind value to parameter identifier in PDOStatement's query as year. If `\Simbiat\SandClock` is available will try to format as `Y`, otherwise a properly formatted string is expected.
      *
@@ -121,7 +121,7 @@ final class Bind
             self::bindString($sql, $binding, (string)$value);
         }
     }
-    
+
     /**
      * Bind value to parameter identifier in PDOStatement's query as date. If `\Simbiat\SandClock` is available will try to format as `Y-m-d`, otherwise a properly formatted string is expected.
      *
@@ -140,7 +140,7 @@ final class Bind
             self::bindString($sql, $binding, (string)$value);
         }
     }
-    
+
     /**
      * Bind value to parameter identifier in PDOStatement's query as time. If `\Simbiat\SandClock` is available will try to format as `H:i:s.u`, otherwise a properly formatted string is expected.
      *
@@ -159,7 +159,7 @@ final class Bind
             self::bindString($sql, $binding, (string)$value);
         }
     }
-    
+
     /**
      * Bind value to parameter identifier in PDOStatement's query as datetime. If `\Simbiat\SandClock` is available will try to format as `Y-m-d H:i:s.u`, otherwise a properly formatted string is expected.
      *
@@ -178,7 +178,7 @@ final class Bind
             self::bindString($sql, $binding, (string)$value);
         }
     }
-    
+
     /**
      * Bind value to parameter identifier in PDOStatement's query as boolean.
      *
@@ -193,7 +193,7 @@ final class Bind
     {
         $sql->bindValue($binding, (bool)$value, \PDO::PARAM_BOOL);
     }
-    
+
     /**
      * Bind value to parameter identifier in PDOStatement's query as null.
      *
@@ -209,7 +209,7 @@ final class Bind
     {
         $sql->bindValue($binding, null, \PDO::PARAM_NULL);
     }
-    
+
     /**
      * Bind value to parameter identifier in PDOStatement's query as integer.
      *
@@ -224,7 +224,7 @@ final class Bind
     {
         $sql->bindValue($binding, (int)$value, \PDO::PARAM_INT);
     }
-    
+
     /**
      * Bind value to parameter identifier in PDOStatement's query as string.
      * @param \PDOStatement $sql     PDOStatement to use
@@ -237,7 +237,7 @@ final class Bind
     {
         $sql->bindValue($binding, (string)$value);
     }
-    
+
     /**
      * Bind value to parameter identifier in PDOStatement's query as bytes value (string). If `\Simbiat\CuteBytes` is not available, the value will be bound as is.
      *
@@ -256,7 +256,7 @@ final class Bind
             self::bindString($sql, $binding, (string)$value);
         }
     }
-    
+
     /**
      * Bind value to parameter identifier in PDOStatement's query as bit value (string). If `\Simbiat\CuteBytes` is not available, the value will be bound as is.
      *
@@ -275,7 +275,7 @@ final class Bind
             self::bindString($sql, $binding, (string)$value);
         }
     }
-    
+
     /**
      * Bind value to parameter identifier in PDOStatement's query as a string for `MATCH` operator in `FULLTEXT` search.
      *
@@ -327,7 +327,7 @@ final class Bind
         }
         self::bindString($sql, $binding, $new_value);
     }
-    
+
     /**
      * Bind value to parameter identifier in PDOStatement's query as a string wrapped in `%` for a `LIKE` statement.
      *
@@ -343,7 +343,7 @@ final class Bind
         #Same as string, but wrapped in % for LIKE '%string%'
         self::bindString($sql, $binding, '%'.$value.'%');
     }
-    
+
     /**
      * Bind value to parameter identifier in PDOStatement's query as a binary object.
      *
@@ -360,7 +360,7 @@ final class Bind
         /** @noinspection NoMBMultibyteAlternative */
         $sql->bindParam($binding, $value, \PDO::PARAM_LOB, \strlen($value));
     }
-    
+
     /**
      * Function to unpack IN bindings, so that each value from a respective array gets its own parameter identifier. Modifies the query and bindings array, thus needs to be run *before* the `prepare` statement that creates a `PDOStatement` object.
      *
