@@ -6,8 +6,6 @@ namespace Simbiat\Database;
 
 use Simbiat\CuteBytes;
 use Simbiat\SandClock;
-use function is_array;
-use function is_string;
 
 /**
  * Functions to handle bindings
@@ -61,26 +59,26 @@ final class Bind
         try {
             foreach ($bindings as $binding => $value) {
                 // Skip the binding if it's not present in the query.
-                if (is_string($binding) && !str_contains($sql->queryString, $binding)) {
+                if (\is_string($binding) && !\str_contains($sql->queryString, $binding)) {
                     continue;
                 }
-                if (!is_array($value)) {
+                if (!\is_array($value)) {
                     // Handle malformed UTF for strings
-                    if (is_string($value)) {
-                        $value = mb_scrub($value, 'UTF-8');
+                    if (\is_string($value)) {
+                        $value = \mb_scrub($value, 'UTF-8');
                     }
                     $sql->bindValue($binding, $value);
                     continue;
                 }
                 // Handle malformed UTF for strings
-                if (is_string($value[0])) {
-                    $value[0] = mb_scrub($value[0], 'UTF-8');
+                if (\is_string($value[0])) {
+                    $value[0] = \mb_scrub($value[0], 'UTF-8');
                 }
-                if (!isset($value[1]) || !is_string($value[1])) {
+                if (!isset($value[1]) || !\is_string($value[1])) {
                     $value[1] = '';
                 }
-                $type = mb_strtolower($value[1], 'UTF-8');
-                if (is_string($type)) {
+                $type = \mb_strtolower($value[1], 'UTF-8');
+                if (\is_string($type)) {
                     $handler = self::BINDING_HANDLERS[$type] ?? null;
                 } else {
                     $handler = null;
@@ -90,12 +88,12 @@ final class Bind
                 } elseif (\is_int($value[1])) {
                     $sql->bindValue($binding, $value[0], $value[1]);
                 } else {
-                    $sql->bindValue($binding, (string)$value[0]);
+                    $sql->bindValue($binding, (string) $value[0]);
                 }
             }
         } catch (\Throwable $exception) {
             $err_message = 'Failed to bind variable `'.$binding.'`';
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 $err_message .= ' of type `'.$value[1].'` with value `'.$value[0].'`';
             } else {
                 $err_message .= ' with value `'.$value.'`';
@@ -119,7 +117,7 @@ final class Bind
         if (\method_exists(SandClock::class, 'format')) {
             self::bindString($sql, $binding, SandClock::format($value, 'Y'));
         } else {
-            self::bindString($sql, $binding, (string)$value);
+            self::bindString($sql, $binding, (string) $value);
         }
     }
 
@@ -138,7 +136,7 @@ final class Bind
         if (\method_exists(SandClock::class, 'format')) {
             self::bindString($sql, $binding, SandClock::format($value, 'Y-m-d'));
         } else {
-            self::bindString($sql, $binding, (string)$value);
+            self::bindString($sql, $binding, (string) $value);
         }
     }
 
@@ -157,12 +155,12 @@ final class Bind
         if (\method_exists(SandClock::class, 'format')) {
             self::bindString($sql, $binding, SandClock::format($value, 'H:i:s.u'));
         } else {
-            self::bindString($sql, $binding, (string)$value);
+            self::bindString($sql, $binding, (string) $value);
         }
     }
 
     /**
-     * Bind value to parameter identifier in PDOStatement's query as datetime. If `\Simbiat\SandClock` is available will try to format as `Y-m-d H:i:s.u`, otherwise a properly formatted string is expected.
+     * Bind a value to a parameter identifier in PDOStatement's query as datetime. If `\Simbiat\SandClock` is available will try to format as `Y-m-d H:i:s.u`, otherwise a properly formatted string is expected.
      *
      * @param \PDOStatement $sql     PDOStatement to use
      * @param string        $binding Identifier name
@@ -176,12 +174,12 @@ final class Bind
         if (\method_exists(SandClock::class, 'format')) {
             self::bindString($sql, $binding, SandClock::format($value));
         } else {
-            self::bindString($sql, $binding, (string)$value);
+            self::bindString($sql, $binding, (string) $value);
         }
     }
 
     /**
-     * Bind value to parameter identifier in PDOStatement's query as boolean.
+     * Bind a value to a parameter identifier in PDOStatement's query as boolean.
      *
      * @param \PDOStatement $sql     PDOStatement to use
      * @param string        $binding Identifier name
@@ -192,11 +190,11 @@ final class Bind
      */
     public static function bindBoolean(\PDOStatement $sql, string $binding, mixed $value): void
     {
-        $sql->bindValue($binding, (bool)$value, \PDO::PARAM_BOOL);
+        $sql->bindValue($binding, (bool) $value, \PDO::PARAM_BOOL);
     }
 
     /**
-     * Bind value to parameter identifier in PDOStatement's query as null.
+     * Bind a value to a parameter identifier in PDOStatement's query as null.
      *
      * @param \PDOStatement $sql     PDOStatement to use
      * @param string        $binding Identifier name
@@ -212,7 +210,7 @@ final class Bind
     }
 
     /**
-     * Bind value to parameter identifier in PDOStatement's query as integer.
+     * Bind a value to a parameter identifier in PDOStatement's query as integer.
      *
      * @param \PDOStatement $sql     PDOStatement to use
      * @param string        $binding Identifier name
@@ -223,7 +221,7 @@ final class Bind
      */
     public static function bindInteger(\PDOStatement $sql, string $binding, mixed $value): void
     {
-        $sql->bindValue($binding, (int)$value, \PDO::PARAM_INT);
+        $sql->bindValue($binding, (int) $value, \PDO::PARAM_INT);
     }
 
     /**
@@ -236,11 +234,11 @@ final class Bind
      */
     public static function bindString(\PDOStatement $sql, string $binding, mixed $value): void
     {
-        $sql->bindValue($binding, (string)$value);
+        $sql->bindValue($binding, (string) $value);
     }
 
     /**
-     * Bind value to parameter identifier in PDOStatement's query as bytes value (string). If `\Simbiat\CuteBytes` is not available, the value will be bound as is.
+     * Bind a value to a parameter identifier in PDOStatement's query as bytes value (string). If `\Simbiat\CuteBytes` is not available, the value will be bound as is.
      *
      * @param \PDOStatement $sql     PDOStatement to use
      * @param string        $binding Identifier name
@@ -252,14 +250,14 @@ final class Bind
     public static function bindBytes(\PDOStatement $sql, string $binding, mixed $value): void
     {
         if (\method_exists(CuteBytes::class, 'bytes')) {
-            self::bindString($sql, $binding, CuteBytes::bytes((string)$value, 1024));
+            self::bindString($sql, $binding, CuteBytes::bytes((string) $value, 1024));
         } else {
-            self::bindString($sql, $binding, (string)$value);
+            self::bindString($sql, $binding, (string) $value);
         }
     }
 
     /**
-     * Bind value to parameter identifier in PDOStatement's query as bit value (string). If `\Simbiat\CuteBytes` is not available, the value will be bound as is.
+     * Bind a value to a parameter identifier in PDOStatement's query as bit value (string). If `\Simbiat\CuteBytes` is not available, the value will be bound as is.
      *
      * @param \PDOStatement $sql     PDOStatement to use
      * @param string        $binding Identifier name
@@ -271,9 +269,9 @@ final class Bind
     public static function bindBits(\PDOStatement $sql, string $binding, mixed $value): void
     {
         if (\method_exists(CuteBytes::class, 'bytes')) {
-            self::bindString($sql, $binding, CuteBytes::bytes((string)$value, 1024, bits: true));
+            self::bindString($sql, $binding, CuteBytes::bytes((string) $value, 1024, bits: true));
         } else {
-            self::bindString($sql, $binding, (string)$value);
+            self::bindString($sql, $binding, (string) $value);
         }
     }
 
@@ -305,13 +303,13 @@ final class Bind
             '/(?<!^| )\(/u',
             // Remove all closing parentheses, which are not preceded by the beginning of string or space or are not followed by the end of string or space
             '/(?<![\p{L}\p{N}_])\)|\)(?! |$)/u'
-        ], '', (string)$value);
+        ], '', (string) $value);
         // Remove all double quotes if the count is not even
-        if (mb_substr_count($new_value, '"', 'UTF-8') % 2 !== 0) {
+        if (\mb_substr_count($new_value, '"', 'UTF-8') % 2 !== 0) {
             $new_value = \preg_replace('/"/u', '', $new_value);
         }
         // Remove all parentheses if the count of closing does not match the count of opening ones
-        if (mb_substr_count($new_value, '(', 'UTF-8') !== mb_substr_count($new_value, ')', 'UTF-8')) {
+        if (\mb_substr_count($new_value, '(', 'UTF-8') !== \mb_substr_count($new_value, ')', 'UTF-8')) {
             $new_value = \preg_replace('/[()]/u', '', $new_value);
         }
         $new_value = \preg_replace([
@@ -330,7 +328,7 @@ final class Bind
     }
 
     /**
-     * Bind value to parameter identifier in PDOStatement's query as a string wrapped in `%` for a `LIKE` statement.
+     * Bind a value to a parameter identifier in PDOStatement's query as a string wrapped in `%` for a `LIKE` statement.
      *
      * @param \PDOStatement $sql     PDOStatement to use
      * @param string        $binding Identifier name
@@ -346,7 +344,7 @@ final class Bind
     }
 
     /**
-     * Bind value to parameter identifier in PDOStatement's query as a binary object.
+     * Bind a value to a parameter identifier in PDOStatement's query as a binary object.
      *
      * @param \PDOStatement $sql     PDOStatement to use
      * @param string        $binding Identifier name
@@ -375,12 +373,12 @@ final class Bind
         // First unpack IN binding
         $all_in_bindings = [];
         foreach ($bindings as $binding => $value) {
-            if (is_array($value) && mb_strtolower($value[1], 'UTF-8') === 'in') {
-                if (!is_array($value[0])) {
+            if (\is_array($value) && \mb_strtolower($value[1], 'UTF-8') === 'in') {
+                if (!\is_array($value[0])) {
                     $value[0] = [$value[0]];
                 }
                 // Check if a type is set
-                if (empty($value[2]) || !is_string($value[2])) {
+                if (empty($value[2]) || !\is_string($value[2])) {
                     $value[2] = 'string';
                 }
                 // Prevent attempts on IN recursion
