@@ -14,6 +14,7 @@ final class Bind
 {
     /**
      * Array to link various data types to their respective binding handlers. Key represents a data type, value is the handler function name.
+     *
      * @var array|string[]
      */
     public const array BINDING_HANDLERS = [
@@ -59,7 +60,10 @@ final class Bind
         try {
             foreach ($bindings as $binding => $value) {
                 // Skip the binding if it's not present in the query.
-                if (\is_string($binding) && !\str_contains($sql->queryString, $binding)) {
+                if (
+                    \is_string($binding)
+                    && !\str_contains($sql->queryString, $binding)
+                ) {
                     continue;
                 }
                 if (!\is_array($value)) {
@@ -68,13 +72,17 @@ final class Bind
                         $value = \mb_scrub($value, 'UTF-8');
                     }
                     $sql->bindValue($binding, $value);
+
                     continue;
                 }
                 // Handle malformed UTF for strings
                 if (\is_string($value[0])) {
                     $value[0] = \mb_scrub($value[0], 'UTF-8');
                 }
-                if (!isset($value[1]) || !\is_string($value[1])) {
+                if (
+                    !isset($value[1])
+                    || !\is_string($value[1])
+                ) {
                     $value[1] = '';
                 }
                 $type = \mb_strtolower($value[1], 'UTF-8');
@@ -83,7 +91,10 @@ final class Bind
                 } else {
                     $handler = null;
                 }
-                if ($handler && \method_exists(self::class, $handler)) {
+                if (
+                    $handler
+                    && \method_exists(self::class, $handler)
+                ) {
                     self::$handler($sql, $binding, $value[0]);
                 } elseif (\is_int($value[1])) {
                     $sql->bindValue($binding, $value[0], $value[1]);
@@ -98,6 +109,7 @@ final class Bind
             } else {
                 $err_message .= ' with value `'.$value.'`';
             }
+
             throw new \PDOException($err_message, $exception->getCode(), $exception);
         }
     }
@@ -110,6 +122,7 @@ final class Bind
      * @param mixed         $value   Value to bind
      *
      * @return void
+     *
      * @noinspection PhpUnused
      * */
     public static function bindYear(\PDOStatement $sql, string $binding, mixed $value): void
@@ -129,6 +142,7 @@ final class Bind
      * @param mixed         $value   Value to bind
      *
      * @return void
+     *
      * @noinspection PhpUnused
      * */
     public static function bindDate(\PDOStatement $sql, string $binding, mixed $value): void
@@ -148,6 +162,7 @@ final class Bind
      * @param mixed         $value   Value to bind
      *
      * @return void
+     *
      * @noinspection PhpUnused
      */
     public static function bindTime(\PDOStatement $sql, string $binding, mixed $value): void
@@ -167,6 +182,7 @@ final class Bind
      * @param mixed         $value   Value to bind
      *
      * @return void
+     *
      * @noinspection PhpUnused
      */
     public static function bindDateTime(\PDOStatement $sql, string $binding, mixed $value): void
@@ -186,6 +202,7 @@ final class Bind
      * @param mixed         $value   Value to bind
      *
      * @return void
+     *
      * @noinspection PhpUnused
      */
     public static function bindBoolean(\PDOStatement $sql, string $binding, mixed $value): void
@@ -201,6 +218,7 @@ final class Bind
      * @param mixed         $value   Value to bind
      *
      * @return void
+     *
      * @noinspection PhpUnusedParameterInspection
      * @noinspection PhpUnused
      * */
@@ -217,6 +235,7 @@ final class Bind
      * @param mixed         $value   Value to bind
      *
      * @return void
+     *
      * @noinspection PhpUnused
      */
     public static function bindInteger(\PDOStatement $sql, string $binding, mixed $value): void
@@ -226,6 +245,7 @@ final class Bind
 
     /**
      * Bind value to parameter identifier in PDOStatement's query as string.
+     *
      * @param \PDOStatement $sql     PDOStatement to use
      * @param string        $binding Identifier name
      * @param mixed         $value   Value to bind
@@ -245,6 +265,7 @@ final class Bind
      * @param mixed         $value   Value to bind
      *
      * @return void
+     *
      * @noinspection PhpUnused
      */
     public static function bindBytes(\PDOStatement $sql, string $binding, mixed $value): void
@@ -264,6 +285,7 @@ final class Bind
      * @param mixed         $value   Value to bind
      *
      * @return void
+     *
      * @noinspection PhpUnused
      */
     public static function bindBits(\PDOStatement $sql, string $binding, mixed $value): void
@@ -283,6 +305,7 @@ final class Bind
      * @param mixed         $value   Value to bind
      *
      * @return void
+     *
      * @noinspection PhpUnused
      */
     public static function bindMatch(\PDOStatement $sql, string $binding, mixed $value): void
@@ -335,6 +358,7 @@ final class Bind
      * @param mixed         $value   Value to bind
      *
      * @return void
+     *
      * @noinspection PhpUnused
      */
     public static function bindLike(\PDOStatement $sql, string $binding, mixed $value): void
@@ -351,6 +375,7 @@ final class Bind
      * @param mixed         $value   Value to bind
      *
      * @return void
+     *
      * @noinspection PhpUnused
      */
     public static function bindBinary(\PDOStatement $sql, string $binding, mixed $value): void
@@ -373,12 +398,18 @@ final class Bind
         // First unpack IN binding
         $all_in_bindings = [];
         foreach ($bindings as $binding => $value) {
-            if (\is_array($value) && \mb_strtolower($value[1], 'UTF-8') === 'in') {
+            if (
+                \is_array($value)
+                && \mb_strtolower($value[1], 'UTF-8') === 'in'
+            ) {
                 if (!\is_array($value[0])) {
                     $value[0] = [$value[0]];
                 }
                 // Check if a type is set
-                if (empty($value[2]) || !\is_string($value[2])) {
+                if (
+                    empty($value[2])
+                    || !\is_string($value[2])
+                ) {
                     $value[2] = 'string';
                 }
                 // Prevent attempts on IN recursion
