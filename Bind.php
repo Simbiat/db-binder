@@ -85,11 +85,7 @@ final class Bind
                     $value[1] = '';
                 }
                 $type = \mb_strtolower($value[1], 'UTF-8');
-                if (\is_string($type)) {
-                    $handler = self::BINDING_HANDLERS[$type] ?? null;
-                } else {
-                    $handler = null;
-                }
+                $handler = \is_string($type) ? self::BINDING_HANDLERS[$type] ?? null : null;
                 if (
                     $handler
                     && \method_exists(self::class, $handler)
