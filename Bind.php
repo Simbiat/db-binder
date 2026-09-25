@@ -15,36 +15,35 @@ final class Bind
     /**
      * Array to link various data types to their respective binding handlers. Key represents a data type, value is the handler function name.
      *
-     * @var array|string[]
      */
     public const array BINDING_HANDLERS = [
-        'year' => 'bindYear',
-        'date' => 'bindDate',
-        'time' => 'bindTime',
-        'datetime' => 'bindDateTime',
-        'timestamp' => 'bindDateTime',
+        'bits' => 'bindBits',
+        'blob' => 'bindBinary',
         'bool' => 'bindBoolean',
         'boolean' => 'bindBoolean',
-        'null' => 'bindNull',
+        'bytes' => 'bindBytes',
+        'date' => 'bindDate',
+        'datetime' => 'bindDateTime',
+        'float' => 'bindString',
         'int' => 'bindInteger',
         'integer' => 'bindInteger',
-        'number' => 'bindInteger',
+        'large' => 'bindBinary',
+        'like' => 'bindLike',
         'limit' => 'bindInteger',
+        'lob' => 'bindBinary',
+        'match' => 'bindMatch',
+        'null' => 'bindNull',
+        'number' => 'bindInteger',
+        'object' => 'bindBinary',
         'offset' => 'bindInteger',
         'str' => 'bindString',
         'string' => 'bindString',
         'text' => 'bindString',
-        'float' => 'bindString',
+        'time' => 'bindTime',
+        'timestamp' => 'bindDateTime',
         'varchar' => 'bindString',
         'varchar2' => 'bindString',
-        'bytes' => 'bindBytes',
-        'bits' => 'bindBits',
-        'match' => 'bindMatch',
-        'like' => 'bindLike',
-        'lob' => 'bindBinary',
-        'large' => 'bindBinary',
-        'object' => 'bindBinary',
-        'blob' => 'bindBinary',
+        'year' => 'bindYear',
     ];
 
     /**
@@ -325,7 +324,7 @@ final class Bind
             // Remove all opening parentheses, which are not preceded by the beginning of string or space
             '/(?<!^| )\(/u',
             // Remove all closing parentheses, which are not preceded by the beginning of string or space or are not followed by the end of string or space
-            '/(?<![\p{L}\p{N}_])\)|\)(?! |$)/u'
+            '/(?<![\p{L}\p{N}_])\)|\)(?! |$)/u',
         ], '', (string) $value);
         // Remove all double quotes if the count is not even
         if (\mb_substr_count($new_value, '"', 'UTF-8') % 2 !== 0) {
@@ -341,7 +340,7 @@ final class Bind
             // Remove all operators that can only precede a text, and that are not preceded by either beginning of string or space, and if they are not followed by a string. Under certain conditions we may need to do this the 2nd time.
             '/(?<!^| )[-+<>~]+(?!\S)|(?<!\S)[-+<>~]+(?!\S)/u',
             // Remove the asterisk operator at the beginning of a string
-            '/^\*/u'
+            '/^\*/u',
         ], ['$1', '', ''], $new_value);
         // Check if the new value is just the set of operators and if it is - set the value to an empty string
         if (\preg_match('/^[+\-<>~()"*]+$/u', $new_value)) {
