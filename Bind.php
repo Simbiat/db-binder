@@ -14,7 +14,6 @@ final class Bind
 {
     /**
      * Array to link various data types to their respective binding handlers. Key represents a data type, value is the handler function name.
-     *
      */
     public const array BINDING_HANDLERS = [
         'bits' => 'bindBits',
@@ -85,7 +84,9 @@ final class Bind
                     $value[1] = '';
                 }
                 $type = \mb_strtolower($value[1], 'UTF-8');
-                $handler = \is_string($type) ? self::BINDING_HANDLERS[$type] ?? null : null;
+                $handler = \is_string($type)
+                    ? self::BINDING_HANDLERS[$type] ?? null
+                    : null;
                 if (
                     $handler
                     && \method_exists(self::class, $handler)
