@@ -8,7 +8,7 @@ use Simbiat\CuteBytes;
 use Simbiat\SandClock;
 
 /**
- * Functions to handle bindings
+ * Functions to handle bindings.
  */
 final class Bind
 {
@@ -377,7 +377,7 @@ final class Bind
     public static function bindBinary(\PDOStatement $sql, string $binding, mixed $value): void
     {
         // Suppress warning from custom inspection, since we are dealing with binary data here, so use of mb_strlen is not appropriate
-        /** @noinspection NoMBMultibyteAlternative */
+        /* @noinspection NoMBMultibyteAlternative */
         $sql->bindParam($binding, $value, \PDO::PARAM_LOB, \strlen($value));
     }
 
