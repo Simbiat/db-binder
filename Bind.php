@@ -64,25 +64,30 @@ final class Bind
                 ) {
                     continue;
                 }
+
                 if (!\is_array($value)) {
                     // Handle malformed UTF for strings
                     if (\is_string($value)) {
                         $value = \mb_scrub($value, 'UTF-8');
                     }
+
                     $sql->bindValue($binding, $value);
 
                     continue;
                 }
+
                 // Handle malformed UTF for strings
                 if (\is_string($value[0])) {
                     $value[0] = \mb_scrub($value[0], 'UTF-8');
                 }
+
                 if (
                     !isset($value[1])
                     || !\is_string($value[1])
                 ) {
                     $value[1] = '';
                 }
+
                 $type = \mb_strtolower($value[1], 'UTF-8');
                 $handler = \is_string($type)
                     ? self::BINDING_HANDLERS[$type] ?? null
@@ -211,16 +216,14 @@ final class Bind
      *
      * @param \PDOStatement $sql     PDOStatement to use
      * @param string        $binding Identifier name
-     * @param mixed         $value   Value to bind
      *
      * @return void
      *
-     * @noinspection PhpUnusedParameterInspection
      * @noinspection PhpUnused
      * */
-    public static function bindNull(\PDOStatement $sql, string $binding, mixed $value): void
+    public static function bindNull(\PDOStatement $sql, string $binding): void
     {
-        $sql->bindValue($binding, null, \PDO::PARAM_NULL);
+        $sql->bindValue($binding, value: null, type: \PDO::PARAM_NULL);
     }
 
     /**
@@ -327,10 +330,12 @@ final class Bind
         if (\mb_substr_count($new_value, '"', 'UTF-8') % 2 !== 0) {
             $new_value = \preg_replace('/"/u', '', $new_value);
         }
+
         // Remove all parentheses if the count of closing does not match the count of opening ones
         if (\mb_substr_count($new_value, '(', 'UTF-8') !== \mb_substr_count($new_value, ')', 'UTF-8')) {
             $new_value = \preg_replace('/[()]/u', '', $new_value);
         }
+
         $new_value = \preg_replace([
             // Collapse all consecutive operators
             '/([-+<>~])([-+<>~]+)/u',
@@ -343,6 +348,7 @@ final class Bind
         if (\preg_match('/^[+\-<>~()"*]+$/u', $new_value)) {
             $new_value = '';
         }
+
         self::bindString($sql, $binding, $new_value);
     }
 
@@ -401,6 +407,7 @@ final class Bind
                 if (!\is_array($value[0])) {
                     $value[0] = [$value[0]];
                 }
+
                 // Check if a type is set
                 if (
                     empty($value[2])
@@ -408,21 +415,25 @@ final class Bind
                 ) {
                     $value[2] = 'string';
                 }
+
                 // Prevent attempts on IN recursion
                 if ($value[2] === 'in') {
-                    throw new \UnexpectedValueException('Can\'t use `in` type when already using `in` binding');
+                    throw new \UnexpectedValueException("Can't use `in` type when already using `in` binding");
                 }
+
                 $in_bindings = [];
                 // Generate the list of items
                 foreach ($value[0] as $in_count => $in_item) {
                     $in_bindings[$binding.'_'.$in_count] = [$in_item, $value[2]];
                     $all_in_bindings[$binding.'_'.$in_count] = [$in_item, $value[2]];
                 }
+
                 unset($bindings[$binding]);
                 // Update the query
                 $sql = \str_replace($binding, \implode(', ', \array_keys($in_bindings)), $sql);
             }
         }
+
         $bindings += $all_in_bindings;
     }
 }
