@@ -382,8 +382,6 @@ final class Bind
      */
     public static function bindBinary(\PDOStatement $sql, string $binding, mixed $value): void
     {
-        // Suppress warning from custom inspection, since we are dealing with binary data here, so use of mb_strlen is not appropriate
-        /* @noinspection NoMBMultibyteAlternative */
         $sql->bindParam($binding, $value, \PDO::PARAM_LOB, \strlen($value));
     }
 
